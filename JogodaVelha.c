@@ -210,6 +210,7 @@ void mostrarTabuleiro(char tabuleiro[][LADO])
 void mostrarInstrucoes()
 {
 	printf("\t\t\t Jogo da Velha\n\n");
+	printf("Voce joga com X e o computador joga com O.\n\n");
 	printf("Escolha uma celula numerada de 1 a 9 como abaixo "
 		"e jogue\n\n");
 
@@ -325,10 +326,12 @@ void jogarJogoDaVelha(int deQuemEhAVez)
 			char tabuleiroTemp[3][3];
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 3; j++) {
-					if (tabuleiro[i][j] == 'X') {
+					// O computador ('O') é o maximizador ('x' no minimax)
+					// e o humano ('X') é o minimizador ('o' no minimax)
+					if (tabuleiro[i][j] == JOGADA_COMPUTADOR) {
 						tabuleiroTemp[i][j] = 'x';
 					}
-					else if (tabuleiro[i][j] == 'O') {
+					else if (tabuleiro[i][j] == JOGADA_HUMANO) {
 						tabuleiroTemp[i][j] = 'o';
 					}
 					else {
@@ -391,11 +394,49 @@ void jogarJogoDaVelha(int deQuemEhAVez)
 	}
 }
 
+// Função para perguntar quem começa a partida
+int perguntarQuemComeca()
+{
+	int escolha = 0;
+
+	while (escolha != 1 && escolha != 2) {
+		printf("Quem comeca o jogo?\n");
+		printf("1 - Jogador Humano (X)\n");
+		printf("2 - Computador (O)\n");
+		printf("Escolha (1 ou 2): ");
+
+		int lidos = scanf("%d", &escolha);
+		if (lidos == EOF)
+			exit(1); // Fim da entrada, não há como continuar
+		if (lidos != 1) {
+			// Descarta a entrada inválida (não numérica)
+			int c;
+			while ((c = getchar()) != '\n' && c != EOF)
+				;
+			escolha = 0;
+		}
+		if (escolha != 1 && escolha != 2)
+			printf("Opcao invalida! Digite 1 ou 2.\n\n");
+	}
+
+	return (escolha == 1) ? HUMANO : COMPUTADOR;
+}
+
 // Programa principal
 int main()
 {
-	// Vamos jogar com o COMPUTADOR começando primeiro
-	jogarJogoDaVelha(COMPUTADOR);
+	char novamente = 's';
+
+	// A cada partida, pergunta quem começa
+	while (novamente == 's' || novamente == 'S') {
+		int primeiro = perguntarQuemComeca();
+		jogarJogoDaVelha(primeiro);
+
+		printf("\nDeseja jogar novamente? (s/n): ");
+		if (scanf(" %c", &novamente) != 1)
+			break;
+		printf("\n");
+	}
 
 	return 0;
 }
